@@ -1,7 +1,5 @@
 from numpy import sin, pi, e
 from math import log
-from scipy import integrate
-
 
 def f1(x):
     if x == 0:
@@ -51,19 +49,19 @@ def foo(function, a, b, real_result, n=None):
         n = int(input("Количество разбиений = "))
     else:
         print("Количество разбиений =", n)
-    #real_result, real_error = integrate.quad(function, a, b)
-    simpson_result, simpson_error = simpson_formula(function, a, b, n)
 
+    simpson_result, simpson_error = simpson_formula(function, a, b, n)
     simpson_result_x2, simpson_error_x2 = simpson_formula(function, a, b, n * 2)
-    #epsilon_x2 = abs(real_result - simpson_result_x2)
-    epsilon = abs(simpson_result_x2 - simpson_result)
     simpson_result_x4, simpson_error_x4 = simpson_formula(function, a, b, n * 4)
+
+    epsilon = abs(simpson_result_x2 - simpson_result)
     epsilon_x4 = abs(simpson_result_x2 - simpson_result_x4)
+
     print("Реальное значение =", real_result)
     print("Значение методом Симпсона =", simpson_result)
     print("Максимальная погрешность =", simpson_error)
     print("Разница =", abs(simpson_result - real_result))
-    print("Порядок аппроксимации? =", log(epsilon / epsilon_x4, 4))
+    print("Порядок аппроксимации? =", log(epsilon / epsilon_x4, 2))
 
 
 foo(f1, 0, 1, 8.034910675416853, n=1000)
