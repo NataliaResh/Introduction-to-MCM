@@ -1,12 +1,18 @@
-from numpy import sin, pi, e, log2
+from numpy import sin, pi, e
+from math import log
 from scipy import integrate
 
 
 def f1(x):
+    if x == 0:
+        return pi
+    if x == 1:
+        return pi * 5
     return sin(pi * x ** 5) / (x ** 5 * (1 - x))
 
-
 def f2(x):
+    if x == float("inf"):
+        return 0
     return e ** (-(x ** 0.5) + sin(x / 10))
 
 
@@ -18,13 +24,13 @@ def simpson_formula(function, a, b, n):
     if n % 2 != 0:
         n += 1
     if b == float("inf"):
-        new_f = lambda x: function(x / (1 - x)) / ((1 - x) ** 2)
+        def new_f(x):
+            if x == 1:
+                return function(float("inf"))
+            return function(x / (1 - x)) / ((1 - x) ** 2)
         b = 1
     else:
         new_f = lambda x: function(x)
-    e = 1e-10
-    a += e
-    b -= e
     h = (b - a) / n
     result = 0
     for i in range(1, n, 2):
@@ -39,26 +45,27 @@ def simpson_formula(function, a, b, n):
     return result, error
 
 
-def foo(function, a, b, n=None):
+def foo(function, a, b, real_result, n=None):
     print("-" * 100)
     if n is None:
         n = int(input("Количество разбиений = "))
     else:
         print("Количество разбиений =", n)
-    real_result, real_error = integrate.quad(function, a, b)
+    #real_result, real_error = integrate.quad(function, a, b)
     simpson_result, simpson_error = simpson_formula(function, a, b, n)
-    epsilon = abs(real_result - simpson_result)
 
     simpson_result_x2, simpson_error_x2 = simpson_formula(function, a, b, n * 2)
-    epsilon_x2 = abs(real_result - simpson_result_x2)
-
-    print("Реальное значение =", real_result, "+-", real_error)
+    #epsilon_x2 = abs(real_result - simpson_result_x2)
+    epsilon = abs(simpson_result_x2 - simpson_result)
+    simpson_result_x4, simpson_error_x4 = simpson_formula(function, a, b, n * 4)
+    epsilon_x4 = abs(simpson_result_x2 - simpson_result_x4)
+    print("Реальное значение =", real_result)
     print("Значение методом Симпсона =", simpson_result)
     print("Максимальная погрешность =", simpson_error)
-    print("Разница =", epsilon)
-    print("Порядок аппроксимации? =", log2(epsilon / epsilon_x2))
+    print("Разница =", abs(simpson_result - real_result))
+    print("Порядок аппроксимации? =", log(epsilon / epsilon_x4, 4))
 
 
-foo(f1, 0, 1, n=250)
+foo(f1, 0, 1, 8.034910675416853, n=1000)
 print()
-foo(f2, 0, float("inf"), n=50000)
+foo(f2, 0, float("inf"), 2.981003452558113, n=50000)
